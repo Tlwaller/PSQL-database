@@ -30,7 +30,31 @@ const addStudent = (req, res) => {
         [name, email, age, dob],
         (error, results) => {
           if (error) throw error;
-          res.status(201).send("student created successfully");
+          res.status(201).send("student successfully created");
+        }
+      );
+    }
+  });
+};
+
+const editStudent = (req, res) => {
+  const id = parseInt(req.params.id);
+
+  pool.query(queries.getStudentById, [id], (error, results) => {
+    if (error) throw error;
+    if (results.rows.length < 1) {
+      res.send("student does not exist in the database");
+    } else {
+      let student = results.rows[0];
+      for (let property in student) {
+        if (req.body[property]) student[property] = req.body[property];
+      }
+      pool.query(
+        queries.editStudent,
+        [id, student.name, student.email, student.age, student.dob],
+        (error, results) => {
+          if (error) throw error;
+          res.status(201).send("student successfully updated");
         }
       );
     }
@@ -57,5 +81,6 @@ module.exports = {
   getStudents,
   getStudentById,
   addStudent,
+  editStudent,
   deleteStudent,
 };
